@@ -501,12 +501,23 @@
     padding-right: 0;
     display: flex;
     flex-direction: column;
+    gap: 0;
   }
 
   .sidebar-cat-header {
     display: flex;
     align-items: center;
     gap: 0.6rem;
+    margin-bottom: 0.8rem;
+    padding-bottom: 0.7rem;
+    border-bottom: 1px solid rgba(200,168,75,0.15);
+  }
+
+  .sidebar-from-header {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 1.4rem;
     margin-bottom: 0.8rem;
     padding-bottom: 0.7rem;
     border-bottom: 1px solid rgba(200,168,75,0.15);
@@ -531,7 +542,6 @@
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
-    flex: 1;
   }
 
   .sidebar-cat-item {
@@ -891,13 +901,15 @@
   }
 
   .profile-name {
-    font-family: 'Cinzel Decorative', serif;
-    font-size: clamp(1.5rem, 4vw, 2.4rem);
-    background: linear-gradient(90deg, #c8a84b, #ffe98a, #c8a84b);
-    background-size: 200% auto;
-    -webkit-background-clip: text; background-clip: text; color: transparent;
-    animation: goldGlint 4s linear infinite;
-    line-height: 1.2;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    font-size: clamp(1.2rem, 3.5vw, 2rem);
+    color: #c8a84b;
+    text-shadow:
+      0 0 12px rgba(200,168,75,0.5),
+      0 0 28px rgba(200,168,75,0.2);
+    letter-spacing: 0.06em;
+    line-height: 1.25;
   }
 
   .profile-tech-divider {
@@ -1013,11 +1025,11 @@
   }
 
   .profile-gallery img {
-    height: 100px;
+    height: 160px;
     width: auto;
     object-fit: cover;
     border: 1px solid rgba(200,168,75,0.15);
-    cursor: pointer;
+    cursor: zoom-in;
     transition: border-color 0.2s, transform 0.2s;
   }
 
@@ -1356,6 +1368,22 @@
     letter-spacing: 0.1em;
   }
 
+  .tags-dropdown-group-label {
+    padding: 0.4rem 0.7rem 0.2rem;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.42rem;
+    letter-spacing: 0.18em;
+    color: rgba(200,168,75,0.45);
+    text-transform: uppercase;
+    border-top: 1px solid rgba(200,168,75,0.1);
+    margin-top: 0.2rem;
+  }
+
+  .tags-dropdown-group-label:first-child {
+    border-top: none;
+    margin-top: 0;
+  }
+
   /* ── EDIT BUTTON ── */
   .profile-admin-actions {
     display: flex;
@@ -1560,6 +1588,42 @@
     color: var(--star-gold);
   }
 
+  /* ── IMAGE LIGHTBOX ── */
+  #imgLightbox {
+    z-index: 2000;
+    background: rgba(2,6,18,0.94);
+    backdrop-filter: blur(8px);
+  }
+
+  .img-lightbox-box {
+    position: relative;
+    display: inline-flex;
+    padding: 0;
+    background: none;
+    border: none;
+    box-shadow: none;
+    border-radius: 0;
+    max-width: 90vw;
+    max-height: 90vh;
+  }
+
+  .img-lightbox-box img {
+    max-width: 90vw;
+    max-height: 86vh;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    display: block;
+    border: 1px solid rgba(200,168,75,0.25);
+    box-shadow: 0 0 80px rgba(0,0,0,0.9);
+  }
+
+  .img-lightbox-box .modal-close {
+    position: absolute;
+    top: -2rem;
+    right: -2rem;
+  }
+
 </style>
 </head>
 <body>
@@ -1614,7 +1678,7 @@
     <span class="nav-divider">|</span>
     <a href="#about" class="nav-btn">About</a>
     <span class="nav-divider">|</span>
-    <a href="#characters" class="nav-btn">Characters</a>
+    <a href="https://moon-blight-characters.vercel.app/#characters" class="nav-btn" target="_blank" rel="noopener">Characters</a>
     <span class="nav-divider">|</span>
     <a href="#art" class="nav-btn">Art</a>
     <span class="nav-divider">|</span>
@@ -1669,6 +1733,8 @@
 
       <!-- RIGHT: category sidebar -->
       <aside class="char-sidebar">
+
+        <!-- CATEGORY section -->
         <div class="sidebar-cat-header">
           <svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg" class="sidebar-star">
             <path d="M30 4 C30 4 32 26 56 30 C32 34 30 56 30 56 C30 56 28 34 4 30 C28 26 30 4 30 4 Z" fill="rgba(200,168,75,0.15)" stroke="#c8a84b" stroke-width="1"/>
@@ -1676,6 +1742,16 @@
           <span class="sidebar-cat-title">Category</span>
         </div>
         <div class="sidebar-cat-list" id="catList"></div>
+
+        <!-- FROM section -->
+        <div class="sidebar-from-header">
+          <svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg" class="sidebar-star">
+            <path d="M30 4 C30 4 32 26 56 30 C32 34 30 56 30 56 C30 56 28 34 4 30 C28 26 30 4 30 4 Z" fill="rgba(200,168,75,0.15)" stroke="#c8a84b" stroke-width="1"/>
+          </svg>
+          <span class="sidebar-cat-title">From</span>
+        </div>
+        <div class="sidebar-cat-list" id="fromList"></div>
+
         <button class="sidebar-add-cat admin-only hidden" id="addCatBtn">+ New Category</button>
       </aside>
 
@@ -1870,6 +1946,14 @@
   <svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
 </button>
 
+<!-- ══ IMAGE LIGHTBOX ══ -->
+<div class="modal-overlay" id="imgLightbox">
+  <div class="img-lightbox-box">
+    <button class="modal-close" id="imgLightboxClose">✕</button>
+    <img id="imgLightboxImg" src="" alt=""/>
+  </div>
+</div>
+
 <script>
 /* ── HERO STAR CANVAS ── */
 (function() {
@@ -2022,16 +2106,62 @@
 
 /* ══ CHARACTER SYSTEM ══ */
 (function() {
-  const STORE_KEY = 'mbd_characters';
-  const CAT_KEY   = 'mbd_categories';
+  function saveChars(a) { /* personagens agora são hardcoded — saveChars não faz nada */ }
+  function saveCats(a)  { /* categorias agora são hardcoded — saveCats não faz nada  */ }
 
-  function loadChars()  { try { return JSON.parse(localStorage.getItem(STORE_KEY)) || []; } catch { return []; } }
-  function saveChars(a) { try { localStorage.setItem(STORE_KEY, JSON.stringify(a)); } catch(e) {} }
-  function loadCats()   { try { return JSON.parse(localStorage.getItem(CAT_KEY))   || []; } catch { return []; } }
-  function saveCats(a)  { try { localStorage.setItem(CAT_KEY,   JSON.stringify(a)); } catch(e) {} }
+  // ══════════════════════════════════════════════════════════════════
+  // CATEGORIAS — edite a lista abaixo para adicionar/remover categorias
+  // ══════════════════════════════════════════════════════════════════
+  let categories = [
+    'Furry',
+    'Creature',
+    'Human',
+    'Dragon',
+    'Robot/Cyborg',
+    'Halfling',
+    'Dragons'
+  ];
 
-  let characters   = loadChars();
-  let categories   = loadCats();
+  // ══════════════════════════════════════════════════════════════════
+  // FROM — séries/universos dos personagens
+  // ══════════════════════════════════════════════════════════════════
+  const fromSeries = [
+    'Blind Love',
+    'Tender Vile',
+    'Moon Path',
+    'Hells Lullaby',
+    'Sorrows of the Ocean',
+    'My Fungus Girlfriend',
+    'Bunbell Burger Place'
+  ];
+
+  // ══════════════════════════════════════════════════════════════════
+  // PERSONAGENS — substitua os valores pelos dados reais.
+  // avatar:   URL do ícone redondo  |  mainImg: URL da imagem principal
+  // gallery:  array de URLs extras  |  tags: devem bater com categorias acima
+  // ══════════════════════════════════════════════════════════════════
+  let characters = [
+    { id:'char_01', name:'Personagem 1',  age:'Idade 1',  backstory:'Backstory 1 — escreva a história do personagem 1.',  tags:['Categoria 1'], avatar:'ICON_1',  mainImg:'MAIN_IMAGE_1',  gallery:[] },
+    { id:'char_02', name:'Personagem 2',  age:'Idade 2',  backstory:'Backstory 2 — escreva a história do personagem 2.',  tags:['Categoria 1'], avatar:'ICON_2',  mainImg:'MAIN_IMAGE_2',  gallery:[] },
+    { id:'char_03', name:'Personagem 3',  age:'Idade 3',  backstory:'Backstory 3 — escreva a história do personagem 3.',  tags:['Categoria 2'], avatar:'ICON_3',  mainImg:'MAIN_IMAGE_3',  gallery:[] },
+    { id:'char_04', name:'Personagem 4',  age:'Idade 4',  backstory:'Backstory 4 — escreva a história do personagem 4.',  tags:['Categoria 2'], avatar:'ICON_4',  mainImg:'MAIN_IMAGE_4',  gallery:[] },
+    { id:'char_05', name:'Personagem 5',  age:'Idade 5',  backstory:'Backstory 5 — escreva a história do personagem 5.',  tags:['Categoria 3'], avatar:'ICON_5',  mainImg:'MAIN_IMAGE_5',  gallery:[] },
+    { id:'char_06', name:'Personagem 6',  age:'Idade 6',  backstory:'Backstory 6 — escreva a história do personagem 6.',  tags:['Categoria 3'], avatar:'ICON_6',  mainImg:'MAIN_IMAGE_6',  gallery:[] },
+    { id:'char_07', name:'Personagem 7',  age:'Idade 7',  backstory:'Backstory 7 — escreva a história do personagem 7.',  tags:['Categoria 1'], avatar:'ICON_7',  mainImg:'MAIN_IMAGE_7',  gallery:[] },
+    { id:'char_08', name:'Personagem 8',  age:'Idade 8',  backstory:'Backstory 8 — escreva a história do personagem 8.',  tags:['Categoria 1'], avatar:'ICON_8',  mainImg:'MAIN_IMAGE_8',  gallery:[] },
+    { id:'char_09', name:'Personagem 9',  age:'Idade 9',  backstory:'Backstory 9 — escreva a história do personagem 9.',  tags:['Categoria 2'], avatar:'ICON_9',  mainImg:'MAIN_IMAGE_9',  gallery:[] },
+    { id:'char_10', name:'Personagem 10', age:'Idade 10', backstory:'Backstory 10 — escreva a história do personagem 10.', tags:['Categoria 2'], avatar:'ICON_10', mainImg:'MAIN_IMAGE_10', gallery:[] },
+    { id:'char_11', name:'Personagem 11', age:'Idade 11', backstory:'Backstory 11 — escreva a história do personagem 11.', tags:['Categoria 3'], avatar:'ICON_11', mainImg:'MAIN_IMAGE_11', gallery:[] },
+    { id:'char_12', name:'Personagem 12', age:'Idade 12', backstory:'Backstory 12 — escreva a história do personagem 12.', tags:['Categoria 3'], avatar:'ICON_12', mainImg:'MAIN_IMAGE_12', gallery:[] },
+    { id:'char_13', name:'Personagem 13', age:'Idade 13', backstory:'Backstory 13 — escreva a história do personagem 13.', tags:['Categoria 1'], avatar:'ICON_13', mainImg:'MAIN_IMAGE_13', gallery:[] },
+    { id:'char_14', name:'Personagem 14', age:'Idade 14', backstory:'Backstory 14 — escreva a história do personagem 14.', tags:['Categoria 1'], avatar:'ICON_14', mainImg:'MAIN_IMAGE_14', gallery:[] },
+    { id:'char_15', name:'Personagem 15', age:'Idade 15', backstory:'Backstory 15 — escreva a história do personagem 15.', tags:['Categoria 2'], avatar:'ICON_15', mainImg:'MAIN_IMAGE_15', gallery:[] },
+    { id:'char_16', name:'Personagem 16', age:'Idade 16', backstory:'Backstory 16 — escreva a história do personagem 16.', tags:['Categoria 2'], avatar:'ICON_16', mainImg:'MAIN_IMAGE_16', gallery:[] },
+    { id:'char_17', name:'Personagem 17', age:'Idade 17', backstory:'Backstory 17 — escreva a história do personagem 17.', tags:['Categoria 3'], avatar:'ICON_17', mainImg:'MAIN_IMAGE_17', gallery:[] },
+    { id:'char_18', name:'Personagem 18', age:'Idade 18', backstory:'Backstory 18 — escreva a história do personagem 18.', tags:['Categoria 3'], avatar:'ICON_18', mainImg:'MAIN_IMAGE_18', gallery:[] },
+    { id:'char_19', name:'Personagem 19', age:'Idade 19', backstory:'Backstory 19 — escreva a história do personagem 19.', tags:['Categoria 1'], avatar:'ICON_19', mainImg:'MAIN_IMAGE_19', gallery:[] },
+    { id:'char_20', name:'Personagem 20', age:'Idade 20', backstory:'Backstory 20 — escreva a história do personagem 20.', tags:['Categoria 1'], avatar:'ICON_20', mainImg:'MAIN_IMAGE_20', gallery:[] }
+  ];
   let adminMode    = false;
   let clickCount   = 0, clickTimer = null;
   let currentEditId = null;   // null = new char, string = editing existing
@@ -2092,7 +2222,7 @@
         if (adminMode) openEditModal(char.id);
         else openProfile(char.id);
       });
-      grid.insertBefore(card, document.getElementById('addCharBtn'));
+      grid.appendChild(card);
     });
 
     renderSidebar();
@@ -2100,6 +2230,7 @@
 
   /* ══ SIDEBAR ══ */
   function renderSidebar() {
+    // ── Category list ──
     const list = document.getElementById('catList');
     list.innerHTML = '';
 
@@ -2114,22 +2245,22 @@
       const item = document.createElement('div');
       item.className = 'sidebar-cat-item' + (cat === activeFilter ? ' active' : '');
       item.dataset.cat = cat;
-      item.innerHTML = `
-        <span class="cat-label-text">${cat}</span>
-        <button class="sidebar-cat-del admin-only${adminMode ? '' : ' hidden'}" title="Delete">✕</button>
-      `;
-      item.addEventListener('click', e => {
-        if (e.target.classList.contains('sidebar-cat-del')) return;
-        renderGrid(cat === activeFilter ? 'all' : cat);
-      });
-      item.querySelector('.sidebar-cat-del').addEventListener('click', e => {
-        e.stopPropagation();
-        if (!confirm(`Delete category "${cat}"?`)) return;
-        categories = categories.filter(c => c !== cat);
-        saveCats(categories);
-        renderGrid(activeFilter === cat ? 'all' : activeFilter);
-      });
+      item.innerHTML = `<span class="cat-label-text">${cat}</span>`;
+      item.addEventListener('click', () => renderGrid(cat === activeFilter ? 'all' : cat));
       list.appendChild(item);
+    });
+
+    // ── From list ──
+    const fromList = document.getElementById('fromList');
+    fromList.innerHTML = '';
+
+    fromSeries.forEach(serie => {
+      const item = document.createElement('div');
+      item.className = 'sidebar-cat-item' + (serie === activeFilter ? ' active' : '');
+      item.dataset.cat = serie;
+      item.innerHTML = `<span class="cat-label-text">${serie}</span>`;
+      item.addEventListener('click', () => renderGrid(serie === activeFilter ? 'all' : serie));
+      fromList.appendChild(item);
     });
   }
 
@@ -2239,7 +2370,9 @@
   function tagsBuildDropdown() {
     while (tagsDropdown.firstChild) tagsDropdown.removeChild(tagsDropdown.firstChild);
 
-    if (!categories.length) {
+    var allTags = categories.concat(fromSeries);
+
+    if (!allTags.length) {
       var empty = document.createElement('div');
       empty.className = 'tags-dropdown-empty';
       empty.textContent = 'No categories yet';
@@ -2247,7 +2380,7 @@
       return;
     }
 
-    categories.forEach(function(cat) {
+    function makeItem(cat) {
       var item = document.createElement('div');
       item.className = 'tags-dropdown-item';
       item.dataset.cat = cat;
@@ -2264,7 +2397,6 @@
       item.appendChild(chk);
       item.appendChild(lbl);
 
-      // Use mousedown so it fires BEFORE the document mousedown closes the dropdown
       item.addEventListener('mousedown', function(e) {
         e.preventDefault();
         e.stopPropagation();
@@ -2277,7 +2409,21 @@
       });
 
       tagsDropdown.appendChild(item);
-    });
+    }
+
+    // Category group label
+    var catLabel = document.createElement('div');
+    catLabel.className = 'tags-dropdown-group-label';
+    catLabel.textContent = 'Category';
+    tagsDropdown.appendChild(catLabel);
+    categories.forEach(makeItem);
+
+    // From group label
+    var fromLabel = document.createElement('div');
+    fromLabel.className = 'tags-dropdown-group-label';
+    fromLabel.textContent = 'From';
+    tagsDropdown.appendChild(fromLabel);
+    fromSeries.forEach(makeItem);
   }
 
   function tagsReset(initial) {
@@ -2496,7 +2642,11 @@
       imgs.forEach(src => {
         const img = document.createElement('img');
         img.src = src;
-        img.addEventListener('click', () => window.open(src, '_blank'));
+        img.addEventListener('click', () => {
+          var lb = document.getElementById('imgLightbox');
+          document.getElementById('imgLightboxImg').src = src;
+          lb.classList.add('open');
+        });
         gallery.appendChild(img);
       });
     } else {
@@ -2550,38 +2700,56 @@
 })();
 /* ══ LOADER ══ */
 (function() {
-  var loader  = document.getElementById('site-loader');
-  var fill    = document.getElementById('loaderBarFill');
-  var pctEl   = document.getElementById('loaderPct');
-  var pct     = 0;
-  var done    = false;
+  var loader = document.getElementById('site-loader');
+  var fill   = document.getElementById('loaderBarFill');
+  var pctEl  = document.getElementById('loaderPct');
+  var pct    = 0;
+  var done   = false;
 
-  // Animate progress bar to ~90% quickly, then wait for window load to finish
+  if (!loader) return; // safety: if element missing, bail out
+
   var ticker = setInterval(function() {
     if (done) return;
-    var step = pct < 70 ? 2.5 : pct < 88 ? 0.7 : 0.1;
+    var step = pct < 70 ? 3 : pct < 88 ? 1 : 0.2;
     pct = Math.min(pct + step, 89);
-    fill.style.width = pct + '%';
-    pctEl.textContent = Math.floor(pct) + '%';
+    try { fill.style.width = pct + '%'; pctEl.textContent = Math.floor(pct) + '%'; } catch(e) {}
   }, 40);
 
   function finish() {
     if (done) return;
     done = true;
     clearInterval(ticker);
-    // Jump to 100%
-    pct = 100;
-    fill.style.width = '100%';
-    pctEl.textContent = '100%';
+    try { fill.style.width = '100%'; pctEl.textContent = '100%'; } catch(e) {}
     setTimeout(function() {
       loader.classList.add('fade-out');
       setTimeout(function() { loader.style.display = 'none'; }, 650);
-    }, 350);
+    }, 300);
   }
 
-  // Fire on load, but cap max wait at 3.5s
-  window.addEventListener('load', finish);
-  setTimeout(finish, 3500);
+  // If load already fired (fast environments), finish immediately
+  if (document.readyState === 'complete') {
+    finish();
+  } else {
+    window.addEventListener('load', finish);
+    setTimeout(finish, 2000); // hard cap at 2s
+  }
+})();
+/* ── Image lightbox ── */
+(function() {
+  var lb    = document.getElementById('imgLightbox');
+  var lbImg = document.getElementById('imgLightboxImg');
+  var lbClose = document.getElementById('imgLightboxClose');
+
+  if (!lb || !lbImg || !lbClose) return;
+
+  function closeLb() {
+    lb.classList.remove('open');
+    lbImg.src = '';
+  }
+
+  lbClose.addEventListener('click', closeLb);
+  lb.addEventListener('click', function(e) { if (e.target === lb) closeLb(); });
+  document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeLb(); });
 })();
 </script>
 </body>
